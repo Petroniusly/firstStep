@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <link rel="stylesheet" href="css/main.min.css" />
+  </head>
+  <body>
+    <section id="game" class="section gameSection" data-anchor="fourthPage">
+			<div id="gameContainer" class="game__container"></div>
+			<div id="gameInterface">
+				<!-- <div class="crosshair"><i id="crosshair" class="fa fa-crosshairs" aria-hidden="true"></i></div> -->
+				<ul class="interface">
+					<!-- score
+					<li id="score" name="gameMenu__score">score</li> -->
+					<!-- time -->
+					<li id="time">time</li>
+				</ul>
+			</div>
+			<div id="gameMenu" class="gameMenu gameMenu__wall">
+				<div id="gameMenu__pause">
+					<div id="pause__button">Continue</div>
+					<!-- reset game and back to menu -->
+					<div id="showmenu__button">Back to menu</div>
+				</div>
+				<div id="gameMenu__main">
+					<div id="gameMenu__start">Play</div>
+					<div data-menuanchor="fifthPage" class="authors"><a href="#thirdPage">Controls</a></div>
+					<!-- <div id="gameMenu__bestscore">Best score</div> -->
+					<div data-menuanchor="fifthPage" class="authors"><a href="#fifthPage">Authors</a></div>
+				</div>
+				<div id="gameMenu__score">
+					<p>Congratulations! You have survive <span id="score"></span>sec in this mad-mad world!)</p>
+					<div id="score__start">Play again</div>
+					<div id="score__goBack">Back to menu</div>
+				</div>  
+			</div> 
+		</section>
+  </body>
+</html>
