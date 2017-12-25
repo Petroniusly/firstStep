@@ -1,12 +1,39 @@
 import * as THREE from 'three';
 import Gui from './gui.js';
 import Stats from 'stats.js';
-import { Math as MathTHREE} from 'three';
-// let OrbitC = require('three-orbit-controls')(THREE);
-// let FirstPersonC = require('three-first-person-controls')(THREE);
-// require('three-first-person-controls')(THREE);
-import {MovementControls} from './js/MovementController';
-import {PointerLockControls} from './js/MouseMoveController';
+// import { Math as MathTHREE} from 'three'; //fix overwriting Math object native JS
+
+import * as options from './js/gameOptions';
+import {gameStat as state} from './js/gameState';
+import {gameStates as game} from './js/gameState';
+import Player from './js/player.js';
+
+import ClickControls from './js/controllers/ClickController';
+import PointerLockControls from './js/controllers/MouseMoveController';
+
+//initial event to pointerlockcontrols
+const gameInterface = document.getElementById('gameInterface');
+const gameMenu = document.getElementById('gameMenu');
+const pauseMenu = document.getElementById('gameMenu__pause');
+const scoreMenu = document.getElementById('gameMenu__score');
+const mainMenu = document.getElementById('gameMenu__main');
+
+const timer = document.getElementById('time');
+const scoreTime = document.getElementById('score');
+
+const start = document.getElementById('gameMenu__start');
+const start2 = document.getElementById('score__start');
+
+const continued = document.getElementById('pause__button');
+
+const backToMain2 = document.getElementById('score__goBack');
+const backToMain = document.getElementById('showmenu__button');
+
+let player;
+
+
+
+
 
 
 //for createScene()
@@ -21,98 +48,23 @@ let planet, basicVector, planetSystem, basicGrid;
 let numberFighters, numberTurrels, numberAchieves;
 let trooperDemo, turrelDemo, achievesDemo, turrelGunsDemo, bulletDemo;
 
-//initial event to pointerlockcontrols
-const gameInterface = document.getElementById('gameInterface');
-const gameMenu = document.getElementById('gameMenu');
-const pauseMenu = document.getElementById('gameMenu__pause');
-const timer = document.getElementById('time');
-const mainMenu = document.getElementById('gameMenu__main');
-const highscore = document.getElementById('gameMenu__score');
-
-const start = document.getElementById('gameMenu__start');
-const start2 = document.getElementById('score__start');
-
-const continued = document.getElementById('pause__button');
-
-const backToMain2 = document.getElementById('score__goBack');
-const backToMain = document.getElementById('showmenu__button');
 
 
 
 //add to instantiate the planet
 let TrooperSystem;
 
-// };
-let gameStat = {
-	// time : new THREE.Clock(false),
-	// fuel : 130, //basically 1 point per second
-	// circuit: 1,
-	// bomb: 1,
-	// slowMotionCard: 0,
-	enemyArray: {
-		turrelArray: [],
-		turrelGunArray: [],
-		trooperArray: [],
-		// fighterArray2: [],
-		// fighterArray3: []
-	},
-	bulletArray: [],
-	enemyQuantity: {
-		turrel: 50,
-		trooper: 10,
-		// fighter: 0,
-		// fighter: 0
-	},
-	// achieveArray: [],
-	// achieves: 0,
-	player: {
-		movementSpeed: 20,
-		currentPos: new THREE.Vector2(), //equal camera.position.x and y
-
-		targetPos: new THREE.Vector2(), //change by moving 
-
-		deltaPos: new THREE.Vector2(), //get delta
-
-		currentSpeed: new THREE.Vector2(), //current moving speed
-
-		currentAngle: new THREE.Vector2(), //current rotation on moving left/right, rotation around Y-axis AND current rotation on moving up/down, rotation around X-axis
-	},
-	score : 0,
-	// time : new THREE.Clock(false),
-	timeNow: 0,
-	timeStart : 0,
-	timeTotal : 0,
-	timePause : 0,
-	timeContinue: 0,
-	isPlaying : false,
-	isPaused : false,
-	isKilled : false,
-	currentWorldSpeed: 0,
-};
-let gameOption = {
-	worldSpeed: Math.PI/60/1000, // get one circle in 120 sec
-	playerMovementSpeed: 20, //------------------------------------------------------------ experimental
-	
-	dX: 120,
-	minY: 0,
-	maxY: 120,
-	bulletSpeed: 20,
-	// bombSpeed: 15,
-	planetPosition: new THREE.Vector3 (0, -480, 0),
-	
-	// achievesQuantity: 0
-};
+// let state = state;
+// state.isPlaying = true;
 
 
 
-
+let gameOption = options; 
 
 //run func when browser load all files;
 window.addEventListener('load', init, false);
 
 function init() {
-
-
 	// set up the scene, the camera and the renderer
     createScene();
 
@@ -246,9 +198,10 @@ function supportDevelop() {
 function runControls() {
 
 	mouseControls = new PointerLockControls( camera );
-	scene.add( mouseControls.getObject() );
+	player = new Player(camera);
+	scene.add( player.getObject() );
 
-	clickControls = new MovementControls(camera, renderer.domElement);
+	clickControls = new ClickControls(camera, renderer.domElement);
 	
 	//-----------------------------------------------------------------------------------------------------------------------------------------//
 	//set correct button Start
@@ -271,7 +224,7 @@ function runControls() {
 			gameMenu.style.display = 'none';
 			pauseMenu.style.display = 'none';
 			mainMenu.style.display = 'none';
-			highscore.style.display = 'none';
+			scoreMenu.style.display = 'none';
 
 			renderer.domElement.focus();
 		} else {
@@ -280,7 +233,7 @@ function runControls() {
 			gameMenu.style.display = 'block';
 			pauseMenu.style.display = 'block';
 			mainMenu.style.display = 'none';
-			highscore.style.display = 'none';
+			scoreMenu.style.display = 'none';
 
 			mouseControls.enabled = false;
 			clickControls.enabled = false;
@@ -324,7 +277,7 @@ function runControls() {
 		gameMenu.style.display = 'block';
 		pauseMenu.style.display = 'none';
 		mainMenu.style.display = 'block';
-		highscore.style.display = 'none';
+		scoreMenu.style.display = 'none';
 	}, false );
 
 	backToMain2.addEventListener( 'click', function ( event ) {
@@ -332,7 +285,7 @@ function runControls() {
 		gameMenu.style.display = 'block';
 		pauseMenu.style.display = 'none';
 		mainMenu.style.display = 'block';
-		highscore.style.display = 'none';
+		scoreMenu.style.display = 'none';
 	}, false );
 
 }
@@ -475,7 +428,7 @@ function createPlanet() {
 
 	let turrelInst;
 	let turrelGunsInst;
-	for (let  i = 0; i < gameStat.enemyQuantity.turrel; i++) {
+	for (let  i = 0; i < state.enemyQuantity.turrel; i++) {
 	turrelInst = turrelDemo.clone();
 	// turrelInst.position.set(planet.position);
 	turrelInst.rotation.x = Math.round(Math.PI * 2 * Math.random() * 12 * 100) / 12 / 100; //get number 0.00 with step in 10 degrees;
@@ -492,16 +445,16 @@ function createPlanet() {
 	// getObjectByName
 	
 	
-	gameStat.enemyArray.turrelArray.push(turrelInst);
-	gameStat.enemyArray.turrelGunArray.push(turrelGunsInst);
+	state.enemyArray.turrelArray.push(turrelInst);
+	state.enemyArray.turrelGunArray.push(turrelGunsInst);
 
 	planetSystem.add(turrelInst);
 	planetSystem.add(turrelGunsInst);
 	}
 
 	// console.log(turrelInst);
-	// console.log(gameStat.enemyArray.turrelArray);
-	// console.log(gameStat.enemyArray.turrelGunArray);
+	// console.log(state.enemyArray.turrelArray);
+	// console.log(state.enemyArray.turrelGunArray);
 	// console.log(planetSystem);
 	// add the mesh of the sea to the scene
 	// scene.add(solarSystem);
@@ -686,7 +639,7 @@ function createTrooper() {
 	let trooperDemo = Trooper();
 	let trooperInst;
 
-	for (let  i = 0; i < gameStat.enemyQuantity.trooper; i++) {
+	for (let  i = 0; i < state.enemyQuantity.trooper; i++) {
 	trooperInst = trooperDemo.clone();
 	
 	trooperInst.position.y = - 420;
@@ -709,8 +662,8 @@ function createTrooper() {
 	// getObjectByName("");
 	
 	
-	gameStat.enemyArray.trooperArray.push(trooperInst);
-	// gameStat.enemyArray.turrelGunArray.push(turrelGunsInst);
+	state.enemyArray.trooperArray.push(trooperInst);
+	// state.enemyArray.turrelGunArray.push(turrelGunsInst);
 
 	scene.add(trooperInst);
 	// planetSystem.add(turrelGunsInst);
@@ -773,28 +726,38 @@ let i = 0,
 	distance,
 	kSpeed,
 	timerSec, timerMin, timerMsec;
+	let isFlip;
+	/// It must be early 
+	let cS = game.gameOver;
 
 
 function loop(){
 	// stats.begin();
 
-	// gameStat.timeNow = Math.ceil(performance.now());
-	// console.log(gameStat.timeNow);
-	// gameStat.timeDelta = Math.ceil(gameStat.time.getDelta * 1000); //now oldtime equal now;
-	// gameStat.timeNow = gameStat.time.oldTime;
+	isFlip = (cS & options.gFl);
+
+	if (clickControls.slowMotion) {
+		console.log('cS is ' + cS);
+		console.log('options.gFl ' + options.gFl);
+		console.log('isFlip is ' + isFlip);
+	}
 	
-	if (!gameStat.isPaused) {
+
+	// state.timeNow = Math.ceil(performance.now());
+	// console.log(state.timeNow);
+	// state.timeDelta = Math.ceil(state.time.getDelta * 1000); //now oldtime equal now;
+	// state.timeNow = state.time.oldTime;
+	
+	if (!state.isPaused) {
 		
 		planetSystem.rotation.x += 0.005;
 
 		//movements
-		clickControls.update(gameStat.player, gameOption);
-		
-		camera.rotation.set(gameStat.player.currentAngle.y, 0, -gameStat.player.currentAngle.x);
-		
-		mouseControls.updatePos(gameStat.player.targetPos);
-		B = mouseControls.getObject().position; // camera position
-		gameStat.enemyArray.turrelGunArray  //turrelGuns look at camera
+		// clickControls.update(state.player, gameOption);
+		player.update(clickControls, mouseControls);
+
+		B = player.getObject().position; // camera position
+		state.enemyArray.turrelGunArray  //turrelGuns look at camera
 		.forEach(gun => {
 	
 			A = gun.children[0].getWorldPosition();
@@ -814,14 +777,14 @@ function loop(){
 				gun.up.set(0,0,1);
 				gun.children[0].rotation.set(alfa, beta, 0, 'YXZ');
 				// console.log(A.z);
-				if (A.z > -120 && A.z < -80 && Math.random() * 60 < 1  && gameStat.isPlaying) {
+				if (A.z > -120 && A.z < -80 && Math.random() * 60 < 1  && state.isPlaying) {
 					// console.log('shoot');
 					let bullet = bulletDemo.clone();
 					bullet.position.add(A);
 					let vector = new THREE.Vector3(dx, dy, dz)
 					bullet.userData.dirToCam = vector.normalize();
 					
-					gameStat.bulletArray.push(bullet);
+					state.bulletArray.push(bullet);
 					scene.add(bullet);
 					// console.log(bullet);
 				}
@@ -829,14 +792,14 @@ function loop(){
 
 			
 		});
-		gameStat.bulletArray
+		state.bulletArray
 		.forEach(bullet => {
 			if (bullet){
 				bullet.position.addScaledVector(bullet.userData.dirToCam, (8));
 				distance = bullet.position.distanceTo(B);
 				if (distance < 1) {
 					// console.log('you die from bullet');
-					gameStat.isKilled = true;
+					state.isKilled = true;
 				};
 				if (bullet.position.z > 2) {
 					scene.remove(scene.getObjectById(bullet.id));
@@ -847,7 +810,7 @@ function loop(){
 
 
 
-		gameStat.enemyArray.trooperArray  //move troopers
+		state.enemyArray.trooperArray  //move troopers
 		.forEach(trooper => {
 			if(trooper){
 				trooper.rotation.x += 0.009;
@@ -870,17 +833,17 @@ function loop(){
 				// console.log(distance);
 				if (distance < 50) {
 					// console.log('you Die from trooper');
-					gameStat.isKilled = true;
+					state.isKilled = true;
 				}
 
-				if (A.z > -120 && A.z < -80 && Math.random() * 60 < 5  && gameStat.isPlaying) {
+				if (A.z > -120 && A.z < -80 && Math.random() * 60 < 5  && state.isPlaying) {
 					// console.log('shoot');
 					let bullet = bulletDemo.clone();
 					bullet.position.add(A);
 					let vector = new THREE.Vector3(dx, dy, dz)
 					bullet.userData.dirToCam = vector.normalize();
 					
-					gameStat.bulletArray.push(bullet);
+					state.bulletArray.push(bullet);
 					scene.add(bullet);
 					// console.log(bullet);
 				}
@@ -888,24 +851,26 @@ function loop(){
 		});
 
 	//Ray detected;
-		if (gameStat.isKilled == true){
+		if (state.isKilled == true){
+		// if (isFlip){
+			
 			if (i > 20) { 
 				gameOver();
 			};
-			mouseControls.getObject().rotation.x += Math.PI / 80;
+			player.getObject().rotation.x += Math.PI / 80;
 			i++;
-			gameStat.isPlaying = false;
+			state.isPlaying = false;
 		};
 // `		console.log(i);`
 
-		gameStat.timeTotal += (gameStat.isPlaying) ? performance.now() - gameStat.timeStart : 0;
-		timerMsec = (Math.floor(gameStat.timeTotal / 1000)).toString().substr(0,2);
-		timerSec = (Math.floor(gameStat.timeTotal / 100000)).toString();
+		state.timeTotal += (state.isPlaying) ? performance.now() - state.timeStart : 0;
+		timerMsec = (Math.floor(state.timeTotal / 1000)).toString().substr(0,2);
+		timerSec = (Math.floor(state.timeTotal / 100000)).toString();
 	
 		timer.innerHTML = timerSec + " . " + timerMsec;
 	};
 	// planet.rotateOnAxis ( planetSystem.position, 0.004 );
-	// timerMin = (Math.floor(gameStat.timeTotal / 60000)).toString().substr(-2);
+	// timerMin = (Math.floor(state.timeTotal / 60000)).toString().substr(-2);
 
 	// timerSec, timerMin, 
 
@@ -919,45 +884,45 @@ function loop(){
 
 function gameStart() {
 	// console.log('run func Start');
-	if (gameStat.timeTotal == 0) {
+	if (state.timeTotal == 0) {
 		mouseControls.addListeners();
 		clickControls.addListeners();
 	};
-	mouseControls.getObject().rotation.x = 0;
-	gameStat.timeTotal = 0;
-	gameStat.timeStart = performance.now();
-	// gameStat.time.start();
-	gameStat.isPlaying = true;
-	// gameStat.isPaused = false;
+	player.getObject().rotation.x = 0;
+	state.timeTotal = 0;
+	state.timeStart = performance.now();
+	// state.time.start();
+	state.isPlaying = true;
+	// state.isPaused = false;
 
 }
 
 function gamePaused() {
 	// console.log('run func Paused');
 
-	// gameStat.timeTotal += preformance.now() - gameStat.timeStart;
-	gameStat.isPaused = true;
+	// state.timeTotal += preformance.now() - state.timeStart;
+	state.isPaused = true;
 }
 
 function gameContinued() {
 
-	// gameStat.timeStart = performance.now();
-	gameStat.isPaused = false;
+	// state.timeStart = performance.now();
+	state.isPaused = false;
 }
 
 function gameOver() {
-	// gameStat.timeTotal += performance.now() - gameStat.timeStart;
+	// state.timeTotal += performance.now() - state.timeStart;
 	
-	let scoreTime = document.getElementById('score');
-	scoreTime.innerHTML = ''+ Math.ceil(gameStat.timeTotal/10000)/10 + ' ';
-	gameStat.isPlaying = false;
+	
+	scoreTime.innerHTML = ''+ Math.ceil(state.timeTotal/10000)/10 + ' ';
+	state.isPlaying = false;
 	document.exitPointerLock();
 
 	gameInterface.style.display = 'none';
 	gameMenu.style.display = 'block';
 	pauseMenu.style.display = 'none';
 	mainMenu.style.display = 'none';
-	highscore.style.display = 'block';
+	scoreMenu.style.display = 'block';
 
 }
 
