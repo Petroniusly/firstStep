@@ -139,35 +139,99 @@ function animate() {
 
 /**
  * @author mrdoob / http://mrdoob.com/
- * @author Petroniusly / blinkovpag@gmail.com
- * based on PointerLockControls from mrdoob example;
+ * @author Petroniusly
  */
 
 import * as THREE from 'three';
 
-export default class {
-    constructor () {
-        this.enabled = false;
-        this.movementX = 0;
-        this.movementY = 0;
-    }
+export const PointerLockControls = function ( camera ) {
+    this.zeroPosition = new THREE.Vector3(0,0,0); 
 
-    onMouseMove(event) {
-        if ( this.enabled === false ) return;
+    let scope = this;
 
-        this.movementX = event.movementX || 0;
-        this.movementY = event.movementY || 0;
-    }
-        
-    addListeners() {
-        // console.log('try to add mouse listeners');
-        document.addEventListener( 'mousemove', this.onMouseMove.bind(this), false );
-        // console.log(document);
+    camera.rotation.set( 0, 0, 0 );
+    this.posX = 0;
+    this.posY = 0;
+
+    let pitchObject = new THREE.Object3D();
+    pitchObject.add( camera );
+    pitchObject.position.add(this.zeroPosition);
+
+    let yawObject = new THREE.Object3D();
+    yawObject.position.y = 10;
+    yawObject.position.add(this.zeroPosition);
+    yawObject.add( pitchObject );
+    
+
+    let angleX = Math.PI / 5 ; //dinamic angle, approx from high
+    let minAngleY = - Math.PI / 3;
+    let maxAngleY = Math.PI / 3;
+
+    let onMouseMove = function ( event ) {
+
+        if ( scope.enabled === false ) return;
+
+        let movementX = event.movementX || 0;
+        let movementY = event.movementY || 0;
+
+        yawObject.rotation.y -= movementX * 0.002;
+        pitchObject.rotation.x -= movementY * 0.002;
+
+        // apply angle range in radians between we can rotate the camera
+        pitchObject.rotation.x = Math.max( minAngleY, Math.min( maxAngleY, pitchObject.rotation.x ) );  // vertical range rotation
+        updateRotationY();  // horizontal range rotation
+
+
     };
 
-    removeListeners() {
+    let updateRotationY = function () {
+        yawObject.rotation.y = Math.max( - angleX, Math.min( angleX, yawObject.rotation.y ) );
+    }
+
+    this.updatePos = function (v) {
+        yawObject.position.x = v.x;
+        yawObject.position.y = v.y;
+        angleX = Math.PI / (5 + yawObject.position.y / 120) ; // set angle = Math.PI / 12 ... Math.PI / 24 bethween high 0...120
+        //refresh angle. Need implement func - update AngleX;
+        updateRotationY();
+    
+    }
+
+
+    this.removeListeners = function() {
         // console.log('try to remove mouse listeners');
-        document.removeEventListener( 'mousemove', this.onMouseMove, false );
+        document.removeEventListener( 'mousemove', onMouseMove, false );
+        // console.log(document);
+
+    };
+
+    this.addListeners = function() {
+        // console.log('try to add mouse listeners');
+        document.addEventListener( 'mousemove', onMouseMove, false );
         // console.log(document);
     };
+
+    // this.addListeners() //----------------------------------------------------------
+    this.enabled = false;
+
+    this.getObject = function () {
+
+        return yawObject;
+
+    };
+
+    this.getDirection = function() {
+
+        // assumes the camera itself is not rotated
+
+        let direction = new THREE.Vector3( 0, 0, - 1 );
+        let rotation = new THREE.Euler( 0, 0, 0, "YXZ" );
+
+        rotation.set( pitchObject.rotation.x, yawObject.rotation.y, 0 );
+
+        return direction.applyEuler( rotation );
+
+     
+    };
+
 };
