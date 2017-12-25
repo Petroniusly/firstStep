@@ -11,31 +11,9 @@ import Player from './js/player.js';
 import ClickControls from './js/controllers/ClickController';
 import PointerLockControls from './js/controllers/MouseMoveController';
 
-//initial event to pointerlockcontrols
-const gameInterface = document.getElementById('gameInterface');
-const gameMenu = document.getElementById('gameMenu');
-const pauseMenu = document.getElementById('gameMenu__pause');
-const scoreMenu = document.getElementById('gameMenu__score');
-const mainMenu = document.getElementById('gameMenu__main');
-
-const timer = document.getElementById('time');
-const scoreTime = document.getElementById('score');
-
-const start = document.getElementById('gameMenu__start');
-const start2 = document.getElementById('score__start');
-
-const continued = document.getElementById('pause__button');
-
-const backToMain2 = document.getElementById('score__goBack');
-const backToMain = document.getElementById('showmenu__button');
+import * as elements from './js/elements';
 
 let player;
-
-
-
-
-
-
 //for createScene()
 let height, width, aspectRatio, fieldOfView, nearPlane, farPlane, scene, camera, renderer, container;
 //for createLights()
@@ -48,18 +26,8 @@ let planet, basicVector, planetSystem, basicGrid;
 let numberFighters, numberTurrels, numberAchieves;
 let trooperDemo, turrelDemo, achievesDemo, turrelGunsDemo, bulletDemo;
 
-
-
-
 //add to instantiate the planet
 let TrooperSystem;
-
-// let state = state;
-// state.isPlaying = true;
-
-
-
-let gameOption = options; 
 
 //run func when browser load all files;
 window.addEventListener('load', init, false);
@@ -220,20 +188,20 @@ function runControls() {
 			mouseControls.enabled = true;
 			clickControls.enabled = true;
 
-			gameInterface.style.display = 'block';
-			gameMenu.style.display = 'none';
-			pauseMenu.style.display = 'none';
-			mainMenu.style.display = 'none';
-			scoreMenu.style.display = 'none';
+			elements.gameInterface.style.display = 'block';
+			elements.gameMenu.style.display = 'none';
+			elements.pauseMenu.style.display = 'none';
+			elements.mainMenu.style.display = 'none';
+			elements.scoreMenu.style.display = 'none';
 
 			renderer.domElement.focus();
 		} else {
 			//reverse all settings
-			gameInterface.style.display = 'none';
-			gameMenu.style.display = 'block';
-			pauseMenu.style.display = 'block';
-			mainMenu.style.display = 'none';
-			scoreMenu.style.display = 'none';
+			elements.gameInterface.style.display = 'none';
+			elements.gameMenu.style.display = 'block';
+			elements.pauseMenu.style.display = 'block';
+			elements.mainMenu.style.display = 'none';
+			elements.scoreMenu.style.display = 'none';
 
 			mouseControls.enabled = false;
 			clickControls.enabled = false;
@@ -247,45 +215,45 @@ function runControls() {
 
 	const pointerlockerror = function ( event ) {
 		console.log("something with PointerLock going wrong");
-		pauseMenu.style.display = 'block'; //on error show pause menu;
+		elements.pauseMenu.style.display = 'block'; //on error show pause menu;
 	};
 
 	// Hook pointer lock state change events
 	document.addEventListener( 'pointerlockchange', pointerlockchange, false );
 	document.addEventListener( 'pointerlockerror', pointerlockerror, false );
 
-	start.addEventListener( 'click', function ( event ) {
+	elements.start.addEventListener( 'click', function ( event ) {
 		gameStart();
 		// Ask the browser to lock the pointer
 		element.requestPointerLock();
 	}, false );
 
-	start2.addEventListener( 'click', function ( event ) {
+	elements.start2.addEventListener( 'click', function ( event ) {
 		gameStart();
 		// Ask the browser to lock the pointer
 		element.requestPointerLock();
 	}, false );
 
-	continued.addEventListener( 'click', function ( event ) {
+	elements.continued.addEventListener( 'click', function ( event ) {
 		gameContinued();
 		// Ask the browser to lock the pointer
 		element.requestPointerLock();
 	}, false );
 
-	backToMain.addEventListener( 'click', function ( event ) {
-		gameInterface.style.display = 'none';
-		gameMenu.style.display = 'block';
-		pauseMenu.style.display = 'none';
-		mainMenu.style.display = 'block';
-		scoreMenu.style.display = 'none';
+	elements.backToMain.addEventListener( 'click', function ( event ) {
+		elements.gameInterface.style.display = 'none';
+		elements.gameMenu.style.display = 'block';
+		elements.pauseMenu.style.display = 'none';
+		elements.mainMenu.style.display = 'block';
+		elements.scoreMenu.style.display = 'none';
 	}, false );
 
-	backToMain2.addEventListener( 'click', function ( event ) {
-		gameInterface.style.display = 'none';
-		gameMenu.style.display = 'block';
-		pauseMenu.style.display = 'none';
-		mainMenu.style.display = 'block';
-		scoreMenu.style.display = 'none';
+	elements.backToMain2.addEventListener( 'click', function ( event ) {
+		elements.gameInterface.style.display = 'none';
+		elements.gameMenu.style.display = 'block';
+		elements.pauseMenu.style.display = 'none';
+		elements.mainMenu.style.display = 'block';
+		elements.scoreMenu.style.display = 'none';
 	}, false );
 
 }
@@ -419,11 +387,11 @@ function createPlanet() {
 	
 
 	//change position our planet
-	// planet.position.add(gameOption.planetPosition);
-	// basicGrid.position.set(gameOption.planetPosition);
+	// planet.position.add(options.planetPosition);
+	// basicGrid.position.set(options.planetPosition);
 	planetSystem.add(planet);
 	// planetSystem.add(basicGrid);
-	planetSystem.position.add(gameOption.planetPosition);
+	planetSystem.position.add(options.planetPosition);
 	// planetSystem.add(turrelDemo.copy())
 
 	let turrelInst;
@@ -432,7 +400,7 @@ function createPlanet() {
 	turrelInst = turrelDemo.clone();
 	// turrelInst.position.set(planet.position);
 	turrelInst.rotation.x = Math.round(Math.PI * 2 * Math.random() * 12 * 100) / 12 / 100; //get number 0.00 with step in 10 degrees;
-	turrelInst.position.x = gameOption.dX * Math.round ( 2 * (Math.random() - 0.5) * 10) / 10;
+	turrelInst.position.x = options.dX * Math.round ( 2 * (Math.random() - 0.5) * 10) / 10;
 	turrelInst.name = 'turrel-' + i;
 
 
@@ -645,7 +613,7 @@ function createTrooper() {
 	trooperInst.position.y = - 420;
 	trooperInst.children[0].position.y = Math.round(450 * (1 + 0.3 * Math.random()));
 	
-	trooperInst.children[0].position.x = gameOption.dX / 12 * Math.round ( (Math.random() - 0.5) * 24);
+	trooperInst.children[0].position.x = options.dX / 12 * Math.round ( (Math.random() - 0.5) * 24);
 	trooperInst.rotation.x = Math.PI * 2 * Math.round(Math.random() * 60) / 60; //get number 0.00 with step in 10 degrees;
 	// trooperInst.rotation.y = Math.round(Math.PI / 36 * Math.random() * 10000) / 10000; //get number 0.00 from 0 to PI/36
 	trooperInst.name = 'trooper-' + i;
@@ -753,7 +721,7 @@ function loop(){
 		planetSystem.rotation.x += 0.005;
 
 		//movements
-		// clickControls.update(state.player, gameOption);
+		// clickControls.update(state.player, options);
 		player.update(clickControls, mouseControls);
 
 		B = player.getObject().position; // camera position
@@ -867,7 +835,7 @@ function loop(){
 		timerMsec = (Math.floor(state.timeTotal / 1000)).toString().substr(0,2);
 		timerSec = (Math.floor(state.timeTotal / 100000)).toString();
 	
-		timer.innerHTML = timerSec + " . " + timerMsec;
+		elements.timer.innerHTML = timerSec + " . " + timerMsec;
 	};
 	// planet.rotateOnAxis ( planetSystem.position, 0.004 );
 	// timerMin = (Math.floor(state.timeTotal / 60000)).toString().substr(-2);
@@ -914,15 +882,15 @@ function gameOver() {
 	// state.timeTotal += performance.now() - state.timeStart;
 	
 	
-	scoreTime.innerHTML = ''+ Math.ceil(state.timeTotal/10000)/10 + ' ';
+	elements.scoreTime.innerHTML = ''+ Math.ceil(state.timeTotal/10000)/10 + ' ';
 	state.isPlaying = false;
 	document.exitPointerLock();
 
-	gameInterface.style.display = 'none';
-	gameMenu.style.display = 'block';
-	pauseMenu.style.display = 'none';
-	mainMenu.style.display = 'none';
-	scoreMenu.style.display = 'block';
+	elements.gameInterface.style.display = 'none';
+	elements.gameMenu.style.display = 'block';
+	elements.pauseMenu.style.display = 'none';
+	elements.mainMenu.style.display = 'none';
+	elements.scoreMenu.style.display = 'block';
 
 }
 

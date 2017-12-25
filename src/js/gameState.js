@@ -1,6 +1,6 @@
 /**
  * @author petroniusly 
- * save State of game any frame
+ * contain all dimanic property of game
  */
 
 import * as THREE from 'three';

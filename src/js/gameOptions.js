@@ -1,6 +1,6 @@
 /**
  * @author petroniusly 
- * save State of game any frame
+ * contain main options for balance the game
  */
 
 import {Vector3} from 'three';
