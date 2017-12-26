@@ -9,20 +9,20 @@ import * as options from './gameOptions';
 export default class Player {
 
     constructor(camera) {
+        this.zeroPosition = new THREE.Vector3();
+        this.zeroVector = new THREE.Vector2();
+        this.zeroEuler = new THREE.Euler(); 
+
         // this.movementSpeed = 20;
-        this.currentPos = new THREE.Vector2(); //equal camera.position.x and y
-        // this.targetPos = new THREE.Vector2(); //change by moving 
-        // this.deltaPos = new THREE.Vector2(); //get delta
-        this.currentSpeed = new THREE.Vector2(); //current moving speed
-        this.currentAngle = new THREE.Vector2(); //current rotation on moving left/right, rotation around Y-axis AND current rotation on moving up/down, rotation around X-axis
+        this.currentPos = this.zeroPosition.clone(); //equal camera.position.x and y
+        // this.targetPos = this.zeroVector.clone(); //change by moving 
+        // this.deltaPos = this.zeroVector.clone(); //get delta
+        this.currentSpeed = this.zeroVector.clone(); //current moving speed
+        this.currentAngle = this.zeroVector.clone(); //current rotation on moving left/right, rotation around Y-axis AND current rotation on moving up/down, rotation around X-axis
         this.kx = 0;
         this.ky = 0;
         
-        // from mouseControls
-        this.zeroPosition = new THREE.Vector3(0,0,0); 
         this.camera = camera;
-        this.posX = 0;
-        this.posY = 0;
         
         this.camera.rotation.set( 0, 0, 0 );
 
@@ -31,7 +31,7 @@ export default class Player {
         this.pitchObject.position.add(this.zeroPosition);
 
         this.yawObject = new THREE.Object3D();
-        this.yawObject.position.y = 10;
+        this.yawObject.position.y = 10; //-------------------------------------------------------------------------------------------------------------------------------
         this.yawObject.position.add(this.zeroPosition);
         this.yawObject.add( this.pitchObject );
 
@@ -61,7 +61,7 @@ export default class Player {
 
     update(clicks, mouse) {
 
-        if ( clicks.enabled === false ) return;
+        // if ( clicks.enabled === false ) return;
 
         if ( clicks.moveLeft ) {
             this.kx = -1;
@@ -122,6 +122,20 @@ export default class Player {
     getObject () {
         return this.yawObject;
     };
+
+    flip() {
+        this.yawObject.rotation.x += Math.PI / 80;
+    }
+
+    clearPosition() {
+        this.yawObject.rotation.copy(this.zeroEuler);
+        this.pitchObject.rotation.x = 0;
+        this.camera.rotation.copy(this.zeroEuler);
+        this.yawObject.position.copy(this.zeroPosition);
+        this.currentPos.copy(this.zeroVector);
+        this.currentAngle.copy(this.zeroVector);
+        this.currentSpeed.copy(this.zeroVector);
+    }
 
     getDirection () {
         // assumes the camera itself is not rotated

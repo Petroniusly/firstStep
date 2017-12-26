@@ -22,3 +22,8 @@ export const planetPosition = new Vector3 (0, -480, 0);
 export const gR = 1;	//game Rotation world on
 export const gFr = 2;	//game Fire mode on
 export const gFl = 4; 	//game Flip player mode on
+//menuStateOptions
+export const mI = 8;    //show main menu (init)
+export const mP = 16;   //show pause menu 
+export const mGO = 32;  //show "game over" menu
+export const sM = mI -1;//don't show menu

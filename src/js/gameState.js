@@ -4,7 +4,7 @@
  */
 
 import * as THREE from 'three';
-import {gR, gFr, gFl} from './gameOptions';
+import {gR, gFr, gFl, mI, mP, mGO} from './gameOptions';
 
 export let gameStat = { 
     // constructor() {
@@ -31,7 +31,7 @@ export let gameStat = {
             // achieves: 0,		
         },
 
-
+        
 
         //not in this release
         //this.score = 0; 
@@ -46,16 +46,18 @@ export let gameStat = {
         isPaused : false,
         isKilled : false,
         currentWorldSpeed : 0,
-            
+        cS : 0,
     // };
 };
 
 // set gameStatesVariations
 export const gameStates = {
-    init: gR,		    //when game start - world rotate, nobody shoot
+    init: gR | mI,		//when game start - world rotate, nobody shoot, show main menu 
     play: gR | gFr,	    //when playing - rotate and shooting on
-    pause: 0,		    //when pause - no rotate and no shooting
+    pause: 0 | mP,		//when pause - no rotate and no shooting, show pause menu
     continue: gR | gFr,	//like play, but time not reset,
     killed: gR | gFl,	//player was killed, shooting off anf flip the camera on
-    gameOver: gR,	    //like init, but not init the scene,
+    gameOver: gR | mGO, //like init, but not init the scene, show "game over" menu
 };
+
+// export let cS = 0; //current State at the moment

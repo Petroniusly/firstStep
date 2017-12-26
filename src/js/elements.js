@@ -3,6 +3,7 @@
 * contain all active elements to interactive on page
 */
 
+export const container = document.getElementById('gameContainer');
 
 export const gameInterface = document.getElementById('gameInterface');
 export const gameMenu = document.getElementById('gameMenu');

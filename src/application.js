@@ -33,6 +33,7 @@ let TrooperSystem;
 window.addEventListener('load', init, false);
 
 function init() {
+	state.cS = game.init;
 	// set up the scene, the camera and the renderer
     createScene();
 
@@ -112,8 +113,8 @@ function createScene() {
     
 	// Add the DOM element of the renderer to the 
 	// container we created in the HTML
-	container = document.getElementById('gameContainer');
-	container.appendChild(renderer.domElement);
+	
+	elements.container.appendChild(renderer.domElement);
     
     //-----------------------------------------------------------------------------------------------//
     
@@ -163,97 +164,88 @@ function supportDevelop() {
 	camera.updateProjectionMatrix();
 }
 
+function showMenu (cS) {
+	elements.gameInterface.style.display = (cS < options.mI) ? 'block' : 'none';
+	elements.gameMenu.style.display = (cS > options.sM) ? 'block' : 'none';
+	elements.mainMenu.style.display = (cS & options.mI) ? 'block' : 'none';;
+	elements.pauseMenu.style.display = (cS & options.mP) ? 'block' : 'none';;
+	elements.scoreMenu.style.display = (cS & options.mGO) ? 'block' : 'none';;
+}
 function runControls() {
 
 	mouseControls = new PointerLockControls( camera );
+	clickControls = new ClickControls(camera, renderer.domElement);
 	player = new Player(camera);
 	scene.add( player.getObject() );
-
-	clickControls = new ClickControls(camera, renderer.domElement);
-	
-	//-----------------------------------------------------------------------------------------------------------------------------------------//
-	//set correct button Start
-
-
-	// const cross = document.querySelector('fa fa-crosshairs');
-	//#ec3636a3
 
 	// const pause = document.getElementById('pause');
 	const element = document.body;
 
+
+	//set only state pointerLock on/off
 	const pointerlockchange = function ( event ) {
 		if ( document.pointerLockElement === element ) {
-
 			//for controller
+			renderer.domElement.focus();
+
 			mouseControls.enabled = true;
 			clickControls.enabled = true;
-
-			elements.gameInterface.style.display = 'block';
-			elements.gameMenu.style.display = 'none';
-			elements.pauseMenu.style.display = 'none';
-			elements.mainMenu.style.display = 'none';
-			elements.scoreMenu.style.display = 'none';
-
-			renderer.domElement.focus();
+			// console.log('PointerLock enabled');
+			// console.log(renderer.domElement);
+			
 		} else {
 			//reverse all settings
-			elements.gameInterface.style.display = 'none';
-			elements.gameMenu.style.display = 'block';
-			elements.pauseMenu.style.display = 'block';
-			elements.mainMenu.style.display = 'none';
-			elements.scoreMenu.style.display = 'none';
-
+			if(isFire) {
+				state.cS = game.pause;
+				// console.log('game Paused');
+			}
 			mouseControls.enabled = false;
 			clickControls.enabled = false;
-			console.log('game paused');
-
-			gamePaused();
-			//set to pause
-			// pauseMenu.style.display = 'block';
+			
+			// console.log('PointerLock disabled');
 		}
 	};
 
 	const pointerlockerror = function ( event ) {
 		console.log("something with PointerLock going wrong");
-		elements.pauseMenu.style.display = 'block'; //on error show pause menu;
+		state.cS = game.pause; //on error show pause menu;
 	};
 
-	// Hook pointer lock state change events
+	clickControls.addListeners();
+	mouseControls.addListeners();
 	document.addEventListener( 'pointerlockchange', pointerlockchange, false );
 	document.addEventListener( 'pointerlockerror', pointerlockerror, false );
 
 	elements.start.addEventListener( 'click', function ( event ) {
-		gameStart();
+		state.cS = game.play;
 		// Ask the browser to lock the pointer
 		element.requestPointerLock();
 	}, false );
 
 	elements.start2.addEventListener( 'click', function ( event ) {
-		gameStart();
+		state.cS = game.play;
 		// Ask the browser to lock the pointer
 		element.requestPointerLock();
 	}, false );
 
 	elements.continued.addEventListener( 'click', function ( event ) {
-		gameContinued();
+		state.cS = game.continue;
 		// Ask the browser to lock the pointer
 		element.requestPointerLock();
 	}, false );
 
+	// elements.esc.addEventListener( 'click', function ( event ) {
+	// 	state.cS = game.pause;
+	// }, false );
+
+
+
 	elements.backToMain.addEventListener( 'click', function ( event ) {
-		elements.gameInterface.style.display = 'none';
-		elements.gameMenu.style.display = 'block';
-		elements.pauseMenu.style.display = 'none';
-		elements.mainMenu.style.display = 'block';
-		elements.scoreMenu.style.display = 'none';
+		state.cS = game.init;
 	}, false );
 
 	elements.backToMain2.addEventListener( 'click', function ( event ) {
-		elements.gameInterface.style.display = 'none';
-		elements.gameMenu.style.display = 'block';
-		elements.pauseMenu.style.display = 'none';
-		elements.mainMenu.style.display = 'block';
-		elements.scoreMenu.style.display = 'none';
+		state.cS = game.init;
 	}, false );
 
 }
@@ -694,44 +686,73 @@ let i = 0,
 	distance,
 	kSpeed,
 	timerSec, timerMin, timerMsec;
-	let isFlip;
+	let isFlip, isRotate, isFire;
+	let cSold = 11;
+	let count = 0;
 	/// It must be early 
-	let cS = game.gameOver;
+	// let cS = game.gameOver;
 
 
 function loop(){
 	// stats.begin();
 
-	isFlip = (cS & options.gFl);
+	state.cS = (clickControls.esc) ? game.pause : state.cS;
+	// console.log(state.cS);
 
-	if (clickControls.slowMotion) {
-		console.log('cS is ' + cS);
-		console.log('options.gFl ' + options.gFl);
-		console.log('isFlip is ' + isFlip);
+	if (clickControls.esc) {
+		console.log('pause enable')
 	}
 	
+	
+	isFlip = (state.cS & options.gFl);
+	isRotate = (state.cS & options.gR);
+	isFire = (state.cS & options.gFr);
+	showMenu(state.cS);
+	
+	if (isFire) {player.update(clickControls, mouseControls)};
+	//dev tests and logs
+	// if(i < 2 || clickControls.slowMotion) {
+	
+	// 	// if (cSold != state.cS) {
+	// 	// 	// state.cS = game.pause
+	// 	// 	// console.log(game);
+	// 	// 	// console.log(state.cS);
+	// 	// 	function show(cS) {
+	// 	// 		isFlip = (cS & options.gFl);
+	// 	// 		isRotate = (cS & options.gR);
+	// 	// 		isFire = (cS & options.gFr);
+	// 	// 		console.log(cS);
+	// 	// console.log('options ' + game);
+	// 	console.log('isFlip is ' + isFlip);
+	// 	console.log('isFire is ' + isFire);
+	// 	console.log('isRotate is ' + isRotate);
+	// 	console.log(player.yawObject.rotation);
+	// 	console.log(player.pitchObject.rotation);
+	// 	console.log(player.camera.rotation);
+	// 	console.log(player.yawObject.position);
+	// 	console.log(player.currentPos);
+	// 	console.log(player.currentAngle);
+	// 	console.log(player.currentSpeed);
+	// 	// console.log(player.yawObject.rotation.y);
+	// 	// 	}
+	// 	// 	for(let cS in game) {show(game[cS])};
+	// 	// }
+	// 	// cSold = state.cS;
+	// }
+	// i++
 
 	// state.timeNow = Math.ceil(performance.now());
 	// console.log(state.timeNow);
 	// state.timeDelta = Math.ceil(state.time.getDelta * 1000); //now oldtime equal now;
 	// state.timeNow = state.time.oldTime;
 	
-	if (!state.isPaused) {
+	if (isRotate) {
 		
 		planetSystem.rotation.x += 0.005;
-
-		//movements
-		// clickControls.update(state.player, options);
-		player.update(clickControls, mouseControls);
-
 		B = player.getObject().position; // camera position
 		state.enemyArray.turrelGunArray  //turrelGuns look at camera
 		.forEach(gun => {
-	
 			A = gun.children[0].getWorldPosition();
-			
-			
-			
 			if (A.y > -200) { 
 				dx = B.x - A.x;
 				dy = B.y - A.y;
@@ -745,7 +766,7 @@ function loop(){
 				gun.up.set(0,0,1);
 				gun.children[0].rotation.set(alfa, beta, 0, 'YXZ');
 				// console.log(A.z);
-				if (A.z > -120 && A.z < -80 && Math.random() * 60 < 1  && state.isPlaying) {
+				if (A.z > -120 && A.z < -80 && Math.random() * 60 < 1  && isFire) {
 					// console.log('shoot');
 					let bullet = bulletDemo.clone();
 					bullet.position.add(A);
@@ -765,9 +786,9 @@ function loop(){
 			if (bullet){
 				bullet.position.addScaledVector(bullet.userData.dirToCam, (8));
 				distance = bullet.position.distanceTo(B);
-				if (distance < 1) {
+				if (distance < 1 && isFire) {
 					// console.log('you die from bullet');
-					state.isKilled = true;
+					state.cS = game.killed;
 				};
 				if (bullet.position.z > 2) {
 					scene.remove(scene.getObjectById(bullet.id));
@@ -799,12 +820,12 @@ function loop(){
 				}
 				distance = A.distanceTo(B);
 				// console.log(distance);
-				if (distance < 50) {
+				if (distance < 50 && isFire) {
 					// console.log('you Die from trooper');
-					state.isKilled = true;
+					state.cS = game.killed;
 				}
 
-				if (A.z > -120 && A.z < -80 && Math.random() * 60 < 5  && state.isPlaying) {
+				if (A.z > -120 && A.z < -80 && Math.random() * 60 < 5  && isFire) {
 					// console.log('shoot');
 					let bullet = bulletDemo.clone();
 					bullet.position.add(A);
@@ -819,17 +840,16 @@ function loop(){
 		});
 
 	//Ray detected;
-		if (state.isKilled == true){
-		// if (isFlip){
-			
-			if (i > 20) { 
+		if (isFlip){
+			document.exitPointerLock();
+			player.flip();
+			count++;
+			if (count == 320) {
 				gameOver();
+				count = 0;
 			};
-			player.getObject().rotation.x += Math.PI / 80;
-			i++;
-			state.isPlaying = false;
 		};
-// `		console.log(i);`
+		// console.log(player.getObject().rotation.x);
 
 		state.timeTotal += (state.isPlaying) ? performance.now() - state.timeStart : 0;
 		timerMsec = (Math.floor(state.timeTotal / 1000)).toString().substr(0,2);
@@ -843,54 +863,50 @@ function loop(){
 	// timerSec, timerMin, 
 
 	renderer.render(scene, camera);
-	// if (clickControls.slowMotion){
-	// 	gameOver();
-	// }
-    // stats.end();
+	
+	// stats.end();
+	
     requestAnimationFrame(loop);
 }
+// not use now
+// function gameStart() {
+// 	// console.log('run func Start');
 
-function gameStart() {
-	// console.log('run func Start');
-	if (state.timeTotal == 0) {
-		mouseControls.addListeners();
-		clickControls.addListeners();
-	};
-	player.getObject().rotation.x = 0;
-	state.timeTotal = 0;
-	state.timeStart = performance.now();
-	// state.time.start();
-	state.isPlaying = true;
-	// state.isPaused = false;
+// 	player.getObject().rotation.x = 0;
+// 	state.timeTotal = 0;
+// 	state.timeStart = performance.now();
+// 	// state.time.start();
+// 	state.isPlaying = true;
+// 	// state.isPaused = false;
 
-}
+// }
 
-function gamePaused() {
-	// console.log('run func Paused');
+//not use now
+// function gamePaused() {
+// 	// console.log('run func Paused');
+// 	state.cS = game.pause;
 
-	// state.timeTotal += preformance.now() - state.timeStart;
-	state.isPaused = true;
-}
+// 	//time not work yet
+// 	// state.timeTotal += preformance.now() - state.timeStart;
 
-function gameContinued() {
+// }
 
-	// state.timeStart = performance.now();
-	state.isPaused = false;
-}
+//not use now
+// function gameContinued() {
+// 	state.cS = game.continue;
+// 	// state.timeStart = performance.now();
+// 	// state.isPaused = false;
+// }
 
 function gameOver() {
+	state.cS = game.gameOver;
+	mouseControls.clearMovement();
+	clickControls.clearClick();
+	player.clearPosition();
+	
+	//time not work yet
 	// state.timeTotal += performance.now() - state.timeStart;
-	
-	
 	elements.scoreTime.innerHTML = ''+ Math.ceil(state.timeTotal/10000)/10 + ' ';
-	state.isPlaying = false;
-	document.exitPointerLock();
-
-	elements.gameInterface.style.display = 'none';
-	elements.gameMenu.style.display = 'block';
-	elements.pauseMenu.style.display = 'none';
-	elements.mainMenu.style.display = 'none';
-	elements.scoreMenu.style.display = 'block';
 
 }
 

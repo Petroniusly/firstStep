@@ -157,6 +157,14 @@ export default class {
 
         this.movementX = event.movementX || 0;
         this.movementY = event.movementY || 0;
+
+        // if (this.movementX) {console.log(this.movementX)};
+        // if (this.movementY) {console.log(this.movementY)};
+    }
+
+    clearMovement() {
+        this.movementX = 0;
+        this.movementY = 0;
     }
         
     addListeners() {
