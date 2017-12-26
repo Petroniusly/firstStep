@@ -1,5 +1,5 @@
 /**
- * @author petroniusly 
+ * @author petroniusly /blinkovpag@gmail.com
  * Player state;
  */
 

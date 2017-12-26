@@ -5,17 +5,20 @@
 
 import {Vector3} from 'three';
 
+///speed options (not used yet)
 export const worldSpeed = Math.PI/60/1000; // get one circle in 120 sec
 export const playerMovementSpeed = 20; //------------------------------------------------------------ experimental
 export const bulletSpeed = 5;
 export const bombSpeed = 15; //not in this release
 
+//player options
 export const dX = 120; //left/right borders of our position
 export const minY = 0; //bottom border -//-
 export const maxY = 120; //top border -//-
 export const minAngleY = - Math.PI / 3;
 export const maxAngleY = Math.PI / 3;
 
+//world position options
 export const planetPosition = new Vector3 (0, -480, 0);
 
 //gameStateOptions
