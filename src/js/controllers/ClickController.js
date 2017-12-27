@@ -1,9 +1,9 @@
 /**
+ * @author petroniusly / blinkovpag@gmail.com
+ * based on FirstPersonControls only in part of event 'click' and removed player movelogic to class Player;
  * @author mrdoob / http://mrdoob.com/
  * @author alteredq / http://alteredqualia.com/
  * @author paulirish / http://paulirish.com/
- * @author petroniusly / blinkovpag@gmail.com
- * based on FirstPersonControls only in part of event 'click' and removed player movelogic to class Player;
  */
 
 import * as THREE from 'three';

@@ -1,7 +1,7 @@
 /**
- * @author mrdoob / http://mrdoob.com/
  * @author Petroniusly / blinkovpag@gmail.com
  * based on PointerLockControls from mrdoob example;
+ * @author mrdoob / http://mrdoob.com/
  */
 
 import * as THREE from 'three';

@@ -4,9 +4,9 @@
  */
 
 import * as THREE from 'three';
-import BasicGeometry from '../basicMethods/basic.geometry';
+import BasicMergeGeometry from '../basicMethods/basic.merge.geometry';
 
-export default class TrooperGeometry extends BasicGeometry{
+export default class TrooperGeometry extends BasicMergeGeometry{
     constructor () {
 
         super();

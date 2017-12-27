@@ -1,12 +1,19 @@
 Game sources
+newest version look at https://github.com/Petroniusly/firstStep/tree/master/src/js
 
 Usage:
  Webpack with boilerplate-threejs-es6-webpack from edap https://github.com/edap/boilerplate-threejs-es6-webpack
 
  Three.js from mrdoob https://github.com/mrdoob/three.js;
+  
  Stat.js from mrdoob https://github.com/mrdoob/stats.js/;
+  
  Gui.js from dataarts https://github.com/dataarts/dat.gui;
- modified version FirstPersonControls from mrdoob https://github.com/mrdoob/three.js/blob/master/examples/js/controls/FirstPersonControls.js save only movement up/down, left/right and clicked on mousebuttons with custom rules of movements;
+  
+ PointerLock API https://developer.mozilla.org/en-US/docs/Web/API/Pointer_Lock_API
+ - realized in MouseMoveController;
+ modified version FirstPersonControls from mrdoob https://github.com/mrdoob/three.js/blob/master/examples/js/controls/FirstPersonControls.js 
+ - realized in ClickController;
 
 Guides:
  Linear Math for begginers from https://habrahabr.ru/post/131931/ (ru);

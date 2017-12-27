@@ -28,8 +28,8 @@ export default class BasicObject extends THREE.Object3D{
         };
     }
 
-    setInstance() {
-        //it will be redefined in inheritors
+    setInstance(mesh) {
+        this.add(mesh);
     }
 
     clearInstance() {

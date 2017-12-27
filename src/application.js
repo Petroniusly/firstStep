@@ -11,7 +11,7 @@ import Player from './js/player.js';
 import ClickControls from './js/controllers/ClickController';
 import PointerLockControls from './js/controllers/MouseMoveController';
 
-import Planet from './js/meshs/planet';
+import Planet from './js/objects/planet/planet.object';
 import Trooper from './js/objects/trooper/trooper.object';
 
 //temp
@@ -47,7 +47,7 @@ function init() {
 	createLights();
     
     // add support panels like DAT.gui, Stats.js,  and AxisHelper();
-	supportDevelop();
+	// supportDevelop();
 	
 	// run Controls for move and rotate
 	runControls();
@@ -316,7 +316,8 @@ function createPlanet() {
 	planetSystem = new THREE.Group();
 	// solarSystem.position.add(new THREE.Vector3(0,0,0).normalize());
 	planet = new Planet();
-	// basicGrid = new PlanetGrid();
+	// console.log(planet);
+
 	
 
 	//change position our planet
@@ -480,7 +481,7 @@ function createTrooper() {
 		state.enemyArray.trooperArray.push(trooperInst);
 		scene.add(trooperInst);
 
-		console.log(trooperInst);
+		// console.log(trooperInst);
 	}
 	// trooperInst.children[0].setMatWireframe();
 	// trooperInst.children[0].setRandomFaces();

@@ -1,6 +1,6 @@
 /**
  * @author petroniusly /blinkovpag@gmail.com
- * Player state;
+ * Create trooper object;
  */
 
 import * as THREE from 'three';
