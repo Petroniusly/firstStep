@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import Gui from './gui.js';
 import Stats from 'stats.js';
-// import { Math as MathTHREE} from 'three'; //fix overwriting Math object native JS
+
+//Package to create the polifill to advanced round of standart
+let round10 = require('round10').round10;
 
 import * as options from './js/gameOptions';
 import {gameStat as state} from './js/gameState';
@@ -13,9 +15,7 @@ import PointerLockControls from './js/controllers/MouseMoveController';
 
 import Planet from './js/objects/planet/planet.object';
 import Trooper from './js/objects/trooper/trooper.object';
-
-//temp
-import Geometry from './js/objects/trooper/trooper.geometry';
+import Turrel from './js/objects/turrel/turrel.object';
 
 import * as elements from './js/elements';
 
@@ -27,13 +27,9 @@ let hemisphereLight, shadowLight, ambientLight;
 //for createSupportPanels() - support tools
 let gui, controls, axisHelper, stats, clickControls, mouseControls; 
 // Instantiate the planet and add it to the scene:
-let planet, planetSystem, basicGrid;
+let planet;
 // Instantiate Enemyes, Turrel and Fighter;
-let numberFighters, numberTurrels, numberAchieves;
 let trooperDemo, turrelDemo, achievesDemo, turrelGunsDemo, bulletDemo;
-
-//add to instantiate the planet
-let TrooperSystem;
 
 //run func when browser load all files;
 window.addEventListener('load', init, false);
@@ -54,7 +50,6 @@ function init() {
 	
     // add the objects
 	// createEnemies(); //include createTurrel() & createFigther() // May be will include to the function createPlanet()
-	createTurrel();
 	createTrooper();
 	createBullet();
 	//create Planet
@@ -176,9 +171,9 @@ function supportDevelop() {
 function showMenu (cS) {
 	elements.gameInterface.style.display = (cS < options.mI) ? 'block' : 'none';
 	elements.gameMenu.style.display = (cS > options.sM) ? 'block' : 'none';
-	elements.mainMenu.style.display = (cS & options.mI) ? 'block' : 'none';;
-	elements.pauseMenu.style.display = (cS & options.mP) ? 'block' : 'none';;
-	elements.scoreMenu.style.display = (cS & options.mGO) ? 'block' : 'none';;
+	elements.mainMenu.style.display = (cS & options.mI) ? 'block' : 'none';
+	elements.pauseMenu.style.display = (cS & options.mP) ? 'block' : 'none';
+	elements.scoreMenu.style.display = (cS & options.mGO) ? 'block' : 'none';
 }
 function runControls() {
 
@@ -301,187 +296,70 @@ function createLights() {
 	scene.add(shadowLight);
 }
 
-// First let's define a Planet object :
-
-// function PlanetGrid() {
-// 	let geom = new THREE.CylinderGeometry( 400, 400, 500, 80, 5 );
-// 	let mat = new THREE.MeshPhongMaterial( {color: 0xffff00, wireframe: true} );
-// 	return new THREE.Mesh( geom, mat );
-// }
-
-
+function setRandom(range, stepQuantity, zeroCentered){
+	let dx = range / stepQuantity;
+	let half = zeroCentered ? stepQuantity / 2 : 0;
+	return function() {
+		return dx * Math.round(Math.random() * stepQuantity - half);
+	}
+}
 
 function createPlanet() {
-
-	planetSystem = new THREE.Group();
-	// solarSystem.position.add(new THREE.Vector3(0,0,0).normalize());
 	planet = new Planet();
-	// console.log(planet);
+	planet.position.add(options.planetPosition);
 
-	
+	turrelDemo = new Turrel();
+	turrelDemo.setInstance();
 
-	//change position our planet
-	// planet.position.add(options.planetPosition);
-	// basicGrid.position.set(options.planetPosition);
-	planetSystem.add(planet);
-	// planetSystem.add(basicGrid);
-	planetSystem.position.add(options.planetPosition);
-	// planetSystem.add(turrelDemo.copy())
-
+	let turrelRotXRandom = setRandom(2 * Math.PI, 80, false);
+	let turrelPosXRandom = setRandom(2 * options.dX, 8, true);
 	let turrelInst;
 	let turrelGunsInst;
+
 	for (let  i = 0; i < state.enemyQuantity.turrel; i++) {
-	turrelInst = turrelDemo.clone();
-	// turrelInst.position.set(planet.position);
-	turrelInst.rotation.x = Math.round(Math.PI * 2 * Math.random() * 12 * 100) / 12 / 100; //get number 0.00 with step in 10 degrees;
-	turrelInst.position.x = options.dX * Math.round ( 2 * (Math.random() - 0.5) * 10) / 10;
-	turrelInst.name = 'turrel-' + i;
 
+		turrelInst = turrelDemo.clone();
+		turrelInst.rotation.x = turrelRotXRandom();
+		turrelInst.position.x = turrelPosXRandom();
+		turrelInst.setName(i);
 
-	turrelGunsInst = turrelGunsDemo.clone();
-	turrelGunsInst.children[0].position.y = 420;
-	turrelGunsInst.position.setComponent(0,turrelInst.position.x);
-	turrelGunsInst.rotation.copy(turrelInst.rotation);
-	turrelGunsInst.name = 'turrelGun-'+i;
-
-	// getObjectByName
-	
-	
-	state.enemyArray.turrelArray.push(turrelInst);
-	state.enemyArray.turrelGunArray.push(turrelGunsInst);
-
-	planetSystem.add(turrelInst);
-	planetSystem.add(turrelGunsInst);
+		for (let j = 0; j < turrelInst.children.length; j++) {
+			turrelInst.children[j].position.y = 420; 
+			turrelInst.children[j].setName(i);
+		}
+		
+		planet.add(turrelInst);
+		state.enemyArray.turrelGunArray.push(planet.getObjectByName('turrel-gun-'+i));
+		state.enemyArray.turrelArray.push(turrelInst);
+		// console.log(planet.getObjectByName('turrel-gun-'+i));
 	}
-
-	// console.log(turrelInst);
-	// console.log(state.enemyArray.turrelArray);
-	// console.log(state.enemyArray.turrelGunArray);
-	// console.log(planetSystem);
-	// add the mesh of the sea to the scene
-	// scene.add(solarSystem);
-	scene.add(planetSystem);
-}
-
-function Turrel() {
-	//create static part;
-	let turrelBase = new THREE.Group();
-
-	let turrelMat = new THREE.MeshPhongMaterial({
-		color: 0xd0d0d0,
-		// vertexColors: THREE.FaceColors,
-		transparent:false,
-		opacity:1,
-		// wireframe: true
-	});
-
-
-
-
-	let baseGeom = new THREE.CylinderBufferGeometry( 6, 12, 40, 8 );
-	let base = new THREE.Mesh(baseGeom, turrelMat);
-	base.castShadow = true;
-	base.position.y = 400;
-	turrelBase.add(base);
-
-	let headGeom = new THREE.SphereBufferGeometry(10, 8, 8, 0, 2 * Math.PI, 0, Math.PI / 2);
-	let head = new THREE.Mesh(headGeom, turrelMat);
-	head.position.y = 420;
-	head.castShadow = true;
-	turrelBase.add(head);
-
-	let headBaseGeom = new THREE.CircleBufferGeometry( 10, 8 );
-	let headBase = new THREE.Mesh(headBaseGeom, turrelMat);
-	headBase.position.y = 420;
-	headBase.rotation.x = Math.PI / 2;
-	headBase.castShadow = true;
-	turrelBase.add(headBase);
-
-	let point = new THREE.Points();
-	point.position.y = 420;
-	point.name = 'point';
-	turrelBase.add(point);
-
-	return turrelBase;
-}
-
-function TurrelGuns() {
-	let gunsWrapper = new THREE.Group();
-	let guns = new THREE.Group();
-	let turrelMat = new THREE.MeshPhongMaterial({
-		color: 0xd0d0d0,
-		// vertexColors: THREE.FaceColors,
-		transparent:false,
-		opacity:1,		
-		// wireframe: true
-	});
-
-	let gunGeom = new THREE.CylinderGeometry( 2, 2, 20, 8 );
-	let gun = new THREE.Mesh(gunGeom, turrelMat);
-	gun.castShadow = true;
-	gun.position.z = 12;
-	gun.rotation.x = Math.PI / 2;
+	console.log(state.enemyArray.turrelGunArray);
 	
-	let gun2 = gun.clone();
-	gun.position.x = -3;
-	gun2.position.x = 3;
-	
-	guns.add(gun);
-	guns.add(gun2);
-	
-	// guns.rotation.x = Math.PI / 4;
-	guns.position.y = 2;
-
-	gunsWrapper.add(guns);
-	gunsWrapper.userData.tw = 0;
-	gunsWrapper.userData.n = 0;
-	gunsWrapper.userData.dirToCam = new THREE.Vector3();
-
-
-	return gunsWrapper;
+	scene.add(planet);
 }
-
-function createTurrel() {
-	turrelGunsDemo = TurrelGuns();
-	turrelDemo = Turrel();
-
-	// let turrelDemoCopy = turrelDemo.clone();
-	// turrelDemoCopy.position.y = -420;
-
-	// let turrelGunsDemoCopy = turrelGunsDemo.clone();
-	// turrelGunsDemoCopy.position.y = 0;
-	// turrelGunsDemoCopy.name = 'gunsDemo';
-
-	// scene.add(turrelDemoCopy);
-	// scene.add(turrelGunsDemoCopy);
-}
-
-
 
 function createTrooper() {
 	let trooperDemo = new Trooper();
 	trooperDemo.setInstance();
 
 	let trooperInst;
+	let trooperPosYRandom = setRandom(120, 12, false);
+	let trooperPosXRandom = setRandom(2 * options.dX, 16, true);
+	let trooperRotXRandom = setRandom(2 * Math.PI, 60, false);
+	let trooperRotYRandom = setRandom(Math.PI / 6, 6, true);
 
 	for (let  i = 0; i < state.enemyQuantity.trooper; i++) {
-	// for (let  i = 0; i < 2; i++) {
 
 		trooperInst = trooperDemo.clone(true);
-		// trooperDemo.clearInstance();
-		// trooperInst.position.x = -50 + 100 * i;
 		trooperInst.position.y = - 420;
-		trooperInst.children[0].position.y = Math.round(450 * (1 + 0.3 * Math.random()));
+		trooperInst.children[0].position.y = 450 + trooperPosYRandom();
 		
-		trooperInst.children[0].position.x = options.dX / 12 * Math.round ( (Math.random() - 0.5) * 24);
-		trooperInst.rotation.x = Math.PI * 2 * Math.round(Math.random() * 60) / 60; //get number 0.00 with step in 10 degrees;
-		trooperInst.rotation.y = Math.round(Math.PI / 36 * Math.random() * 10000) / 10000; //get number 0.00 from 0 to PI/36
+		trooperInst.children[0].position.x = trooperPosXRandom();
+		trooperInst.rotation.set(trooperRotXRandom(), trooperRotYRandom(), 0, "YXZ");
 		trooperInst.setName(i);
 		
 		state.enemyArray.trooperArray.push(trooperInst);
 		scene.add(trooperInst);
-
-		// console.log(trooperInst);
 	}
 	// trooperInst.children[0].setMatWireframe();
 	// trooperInst.children[0].setRandomFaces();
@@ -582,7 +460,7 @@ function loop(){
 	
 	if (isRotate) {
 		
-		planetSystem.rotation.x += 0.005;
+		planet.rotation.x += 0.005;
 		B = player.getObject().position; // camera position
 		state.enemyArray.turrelGunArray  //turrelGuns look at camera
 		.forEach(gun => {
@@ -612,9 +490,8 @@ function loop(){
 					// console.log(bullet);
 				}
 			}
-
-			
 		});
+
 		state.bulletArray
 		.forEach(bullet => {
 			if (bullet){
@@ -691,7 +568,7 @@ function loop(){
 	
 		elements.timer.innerHTML = timerSec + " . " + timerMsec;
 	};
-	// planet.rotateOnAxis ( planetSystem.position, 0.004 );
+	// planet.rotateOnAxis ( planet.position, 0.004 );
 	// timerMin = (Math.floor(state.timeTotal / 60000)).toString().substr(-2);
 
 	// timerSec, timerMin, 
@@ -750,8 +627,6 @@ function addStats(debug) {
         document.body.appendChild(stats.domElement);
     }
 }
-
-
 
 // loadAllAssets().then(
 //     (assets) => {

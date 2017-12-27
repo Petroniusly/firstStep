@@ -12,7 +12,7 @@ export const bulletSpeed = 5;
 export const bombSpeed = 15; //not in this release
 
 //player options
-export const dX = 120; //left/right borders of our position
+export const dX = 200; //left/right borders of our position
 export const minY = 0; //bottom border -//-
 export const maxY = 120; //top border -//-
 export const minAngleY = - Math.PI / 3;

@@ -24,6 +24,7 @@
   "dependencies": {
     "dat-gui": "^0.5.0",
     "es6-promise": "^4.1.1",
+    "round10": "^1.0.3",
     "stats.js": "^0.17.0",
     "three-first-person-controls": "^0.2.1",
     "three-orbit-controls": "^82.1.0",
