@@ -11,7 +11,11 @@ import Player from './js/player.js';
 import ClickControls from './js/controllers/ClickController';
 import PointerLockControls from './js/controllers/MouseMoveController';
 
-import Planet from './js/objects/planet';
+import Planet from './js/meshs/planet';
+import Trooper from './js/objects/trooper/trooper.object';
+
+//temp
+import Geometry from './js/objects/trooper/trooper.geometry';
 
 import * as elements from './js/elements';
 
@@ -43,7 +47,7 @@ function init() {
 	createLights();
     
     // add support panels like DAT.gui, Stats.js,  and AxisHelper();
-	// supportDevelop();
+	supportDevelop();
 	
 	// run Controls for move and rotate
 	runControls();
@@ -159,6 +163,9 @@ function supportDevelop() {
 		
 	//set start position - correct to 0,0,0 before production
 	camera.position.z = 80;
+	options.minAngleY = - Math.PI;
+	options.maxAngleY = Math.PI;
+	
 
 	//Set width/height in prod
 	renderer.setSize(width/2, height/2);
@@ -367,6 +374,9 @@ function Turrel() {
 		// wireframe: true
 	});
 
+
+
+
 	let baseGeom = new THREE.CylinderBufferGeometry( 6, 12, 40, 8 );
 	let base = new THREE.Mesh(baseGeom, turrelMat);
 	base.castShadow = true;
@@ -445,148 +455,37 @@ function createTurrel() {
 	// scene.add(turrelGunsDemoCopy);
 }
 
-function Trooper() {
-	let trooper = new THREE.Group();
-	let mat = new THREE.MeshPhongMaterial({
-		
-		// wireframe: true
 
-		color: 0x1f1f1f,
-		// metalness: 0.5,
-		// roughness: 0.1,
-		opacity: 0.20,
-
-		transparent: true,
-
-
-		// color: 0xd0d0d0,
-		// vertexColors: THREE.FaceColors,
-		// transparent:false,
-		opacity:1,
-		reflectivity: 1,
-		// refractionRatio: 0.4,
-		shininess: 0.8,
-		specular:1,
-
-	});
-
-	let headGeom = new THREE.SphereBufferGeometry(10,10,10);
-	let armGeom = new THREE.CylinderBufferGeometry(6,2,12,8,2);
-	let head = new THREE.Mesh(headGeom, mat);
-	head.castShadow = true;
-
-	let arm = new THREE.Mesh(armGeom, mat);
-	arm.castShadow = true;
-	let arm2 = arm.clone();
-	arm2.castShadow = true;
-	arm.rotation.z = Math.PI / 2;
-	arm2.rotation.z = -Math.PI / 2;
-	arm.position.x = 14;
-	arm2.position.x = -14;
-
-	let tempY = 10*Math.sin(Math.PI/3);
-	let crestShape = new THREE.Shape();
-	crestShape.moveTo(-10,0);
-	crestShape.lineTo(-5,tempY);
-	crestShape.lineTo(5,tempY);
-	crestShape.lineTo(10,0);
-	crestShape.lineTo(5,-tempY);
-	crestShape.lineTo(-5,-tempY);
-	crestShape.lineTo(-10,0);
-	
-	let wingGeom = new THREE.ExtrudeGeometry( crestShape, {
-		steps: 2,
-		amount: 1,
-		bevelEnabled: true,
-		bevelThickness: 1,
-		bevelSize: 1,
-		bevelSegments: 1
-	});
-
-	let wing = new THREE.Mesh(wingGeom, mat);
-	wing.castShadow = true;
-	wing.rotation.y = Math.PI / 2;
-	wing.scale.set(2,2,1);
-	let wing2 = wing.clone();
-	wing.position.x = 21;
-	wing2.position.x = -21;
-
-	trooper.add(head);
-	trooper.add(arm);
-	trooper.add(arm2);
-	trooper.add(wing);
-	trooper.add(wing2);
-	// scene.add(trooper);
-	let trooperWrapper = new THREE.Group();
-	trooperWrapper.add(trooper);
-	trooperWrapper.userData.tw = 0;
-	trooperWrapper.userData.n = 0;
-	trooperWrapper.userData.dirToCam = new THREE.Vector3();
-
-
-	return trooperWrapper;
-	
-	// Sphere(8,8,8,10)
-}
 
 function createTrooper() {
-	let trooperDemo = Trooper();
+	let trooperDemo = new Trooper();
+	trooperDemo.setInstance();
+
 	let trooperInst;
 
 	for (let  i = 0; i < state.enemyQuantity.trooper; i++) {
-	trooperInst = trooperDemo.clone();
-	
-	trooperInst.position.y = - 420;
-	trooperInst.children[0].position.y = Math.round(450 * (1 + 0.3 * Math.random()));
-	
-	trooperInst.children[0].position.x = options.dX / 12 * Math.round ( (Math.random() - 0.5) * 24);
-	trooperInst.rotation.x = Math.PI * 2 * Math.round(Math.random() * 60) / 60; //get number 0.00 with step in 10 degrees;
-	// trooperInst.rotation.y = Math.round(Math.PI / 36 * Math.random() * 10000) / 10000; //get number 0.00 from 0 to PI/36
-	trooperInst.name = 'trooper-' + i;
-	
-	
-	// trooperInst.rotation.copy(turrelInst.rotation);
-	// turrelGunsInst.position.setComponent(0,turrelInst.position.x);
-	
+	// for (let  i = 0; i < 2; i++) {
 
+		trooperInst = trooperDemo.clone(true);
+		// trooperDemo.clearInstance();
+		// trooperInst.position.x = -50 + 100 * i;
+		trooperInst.position.y = - 420;
+		trooperInst.children[0].position.y = Math.round(450 * (1 + 0.3 * Math.random()));
+		
+		trooperInst.children[0].position.x = options.dX / 12 * Math.round ( (Math.random() - 0.5) * 24);
+		trooperInst.rotation.x = Math.PI * 2 * Math.round(Math.random() * 60) / 60; //get number 0.00 with step in 10 degrees;
+		trooperInst.rotation.y = Math.round(Math.PI / 36 * Math.random() * 10000) / 10000; //get number 0.00 from 0 to PI/36
+		trooperInst.setName(i);
+		
+		state.enemyArray.trooperArray.push(trooperInst);
+		scene.add(trooperInst);
 
-	// turrelGunsInst = turrelGunsDemo.clone();
-	// turrelGunsInst.name = 'turrelGun-'+i;
-
-	// getObjectByName("");
-	
-	
-	state.enemyArray.trooperArray.push(trooperInst);
-	// state.enemyArray.turrelGunArray.push(turrelGunsInst);
-
-	scene.add(trooperInst);
-	// planetSystem.add(turrelGunsInst);
+		console.log(trooperInst);
 	}
+	// trooperInst.children[0].setMatWireframe();
+	// trooperInst.children[0].setRandomFaces();
 
 }
-
-//posibly best is created it with HTML/CSS, so we can also add shadows and etc.
-// function Screen() {
-
-// 	// let screen = new THREE.Object3D();
-
-// 	// let crestShape = new THREE.Shape();
-// 	// crestShape.moveTo(0,0);
-// 	// crestShape.arc(0,0,6,0,Math.PI,true);
-// 	// crestShape.arc(0,18,6,0,Math.PI, true);
-// 	// crestShape.moveTo(18,-6);
-// 	// crestShape.lineTo(0,-6);
-// 	// crestShape.moveTo(0,6);
-// 	// crestShape.moveTo(18,6);
-
-// 	// let geom = new THREE.ShapeGeometry( crestShape );
-// 	// let mat = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-// 	// let mesh = new THREE.Mesh( geom, mat ) ;
-// 	// screen.add( mesh );
-// 	// // screen.pos(camera.position.addScaledVector ( ,  ))
-// 	// scene.add( screen );
-
-// }
 
 function Bullet() {
 	let mat = new THREE.MeshPhongMaterial({
